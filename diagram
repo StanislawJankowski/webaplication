@@ -1,0 +1,169 @@
+classDiagram
+    %% User Management
+    class User {
+        -Long id
+        -String username
+        -String email
+        -String password
+        -String fullName
+        -Date birthDate
+        -Role role
+        -List~String~ interests
+        -String profilePicture
+        -Date createdAt
+        -Boolean twoFactorEnabled
+        +register()
+        +login()
+        +updateProfile()
+        +changePassword()
+        +enableTwoFactor()
+    }
+
+    class Role {
+        -Long id
+        -String name
+        -List~Permission~ permissions
+        +getPermissions()
+    }
+
+    class Permission {
+        -Long id
+        -String name
+        -String description
+        +checkPermission()
+    }
+
+    %% Asset Management
+    class DigitalAsset {
+        -Long id
+        -String title
+        -String description
+        -AssetType type
+        -String filePath
+        -Long fileSize
+        -String mimeType
+        -Date uploadDate
+        -Boolean isPublic
+        -User owner
+        -Category category
+        -Integer popularity
+        -Boolean isVerified
+        -List~Comment~ comments
+        -List~Tag~ tags
+        -List~Metadata~ metadata
+        +upload()
+        +download()
+        +update()
+        +delete()
+        +share()
+        +verify()
+        +report()
+    }
+
+    class AssetType {
+        -Long id
+        -String name
+        -String description
+        +validate()
+    }
+
+    class Category {
+        -Long id
+        -String name
+        -String description
+        -Category parent
+        -List~Category~ children
+        +addSubcategory()
+        +removeSubcategory()
+    }
+
+    class Tag {
+        -Long id
+        -String name
+        +createTag()
+    }
+
+    class Metadata {
+        -Long id
+        -String key
+        -String value
+        -DigitalAsset asset
+        +updateValue()
+    }
+
+    class Comment {
+        -Long id
+        -String content
+        -Date createdAt
+        -User author
+        -DigitalAsset asset
+        +addComment()
+        +editComment()
+        +deleteComment()
+    }
+
+    %% Security and Activity
+    class Report {
+        -Long id
+        -ReportReason reason
+        -String description
+        -User reporter
+        -DigitalAsset asset
+        -Date reportedAt
+        -Boolean isResolved
+        -User resolvedBy
+        +createReport()
+        +resolveReport()
+    }
+
+    class ReportReason {
+        -Long id
+        -String name
+        -String description
+    }
+
+    class ActivityLog {
+        -Long id
+        -User user
+        -String action
+        -Date timestamp
+        -String ipAddress
+        -DigitalAsset asset
+        +logActivity()
+        +getActivitiesByUser()
+    }
+
+    class Notification {
+        -Long id
+        -String content
+        -Date createdAt
+        -Boolean isRead
+        -User recipient
+        -NotificationType type
+        +markAsRead()
+        +sendNotification()
+    }
+
+    class NotificationType {
+        -Long id
+        -String name
+        -String description
+    }
+
+    %% Relationships
+    User "1" -- "many" DigitalAsset : owns
+    User "1" -- "many" Comment : authors
+    User "1" -- "many" Report : submits
+    User "1" -- "many" ActivityLog : generates
+    User "1" -- "many" Notification : receives
+    User "many" -- "1" Role : has
+
+    DigitalAsset "many" -- "1" Category : belongs to
+    DigitalAsset "many" -- "many" Tag : has
+    DigitalAsset "1" -- "many" Metadata : contains
+    DigitalAsset "1" -- "many" Comment : has
+    DigitalAsset "1" -- "many" Report : receives
+
+    Category "1" -- "many" Category : contains
+
+    Role "many" -- "many" Permission : includes
